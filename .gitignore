@@ -1,0 +1,13 @@
+# Nix
+.direnv
+result
+
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+
+# Env
+.env
+
+# Result
+meilisearch-syncer
