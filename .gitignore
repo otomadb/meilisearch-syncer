@@ -8,6 +8,7 @@ result
 
 # Env
 .env
+!.env.example
 
 # Result
 meilisearch-syncer
