@@ -39,8 +39,7 @@ func main() {
 	}
 
 	client := meilisearch.NewClient(meilisearch.ClientConfig{
-		Host:   os.Getenv("MEILISEARCH_URL"),
-		APIKey: "masterKey",
+		Host: os.Getenv("MEILISEARCH_URL"),
 	})
 	index := client.Index("tags")
 
