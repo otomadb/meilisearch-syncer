@@ -17,7 +17,9 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	rows, err := conn.Query(context.Background(), `SELECT array_agg("name") AS names, "tagId" FROM "TagName" GROUP BY "tagId"`)
+	ms := meilisearch.NewClient(meilisearch.ClientConfig{Host: os.Getenv("MEILISEARCH_URL")})
+
+	rows, err := conn.Query(context.Background(), `SELECT "id","name","tagId" FROM "TagName"`)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 		os.Exit(1)
@@ -26,28 +28,38 @@ func main() {
 	var tagDocuments []map[string]interface{}
 	defer rows.Close()
 	for rows.Next() {
-		var names []string
+		var id string
+		var name string
 		var tagId string
 
-		err = rows.Scan(&names, &tagId)
+		err = rows.Scan(&id, &name, &tagId)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Unable to scan the row: %v\n", err)
 			os.Exit(1)
 		}
 
-		tagDocuments = append(tagDocuments, map[string]interface{}{"id": tagId, "names": names})
+		tagDocuments = append(tagDocuments, map[string]interface{}{"id": id, "name": name, "tag_id": tagId})
 	}
 
-	client := meilisearch.NewClient(meilisearch.ClientConfig{
-		Host: os.Getenv("MEILISEARCH_URL"),
-	})
-	index := client.Index("tags")
+	tags_index := ms.Index("tags")
 
-	task, err := index.AddDocuments(tagDocuments)
+	_, err = tags_index.DeleteAllDocuments()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Println(task.TaskUID)
+	_, err = tags_index.UpdateDistinctAttribute("tag_id")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	_, err = tags_index.AddDocuments(tagDocuments)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Synced successfully.")
 }
