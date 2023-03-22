@@ -27,14 +27,15 @@
       in {
         devShells.default = pkgs.devshell.mkShell {
           packages = with pkgs; [
+            actionlint
             alejandra
-            httpie
             go
             go-outline
             gocode-gomod
             gopkgs
             gopls
             gotools
+            httpie
           ];
         };
       }
