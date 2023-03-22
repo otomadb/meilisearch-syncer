@@ -12,7 +12,7 @@ COPY *.go ./
 RUN CGO_ENABLED=0 go build -o /app
 
 # Runner
-FROM gcr.io/distroless/static-debian11 AS runner
+FROM gcr.io/distroless/static-debian11:latest AS runner
 
 WORKDIR /app
 
