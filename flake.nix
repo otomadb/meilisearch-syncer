@@ -28,6 +28,7 @@
         devShells.default = pkgs.devshell.mkShell {
           packages = with pkgs; [
             alejandra
+            httpie
             go
             go-outline
             gocode-gomod
