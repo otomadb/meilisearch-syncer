@@ -35,6 +35,7 @@
             gopkgs
             gopls
             gotools
+            hadolint
             httpie
           ];
         };
