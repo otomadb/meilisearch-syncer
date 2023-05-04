@@ -25,10 +25,30 @@
           ];
         };
       in {
+        packages.default = pkgs.buildGoModule {
+          pname = "meilisearch-syncer";
+          version = "0.1.0";
+          src = pkgs.lib.cleanSourceWith {
+            src = ./.;
+            filter = path: type: let p = baseNameOf path; in !((p == "flake.nix") || (p == "flake.lock") || (p == "README.md"));
+          };
+          vendorSha256 = "sha256-eYXDJUbXc5OEubhspDj9gd278pxZNFaeE5Sz4hNUxt0=";
+        };
+        packages.docker = pkgs.dockerTools.buildImage {
+          name = "meilisearch-syncer";
+          tag = "latest";
+          copyToRoot = pkgs.buildEnv {
+            name = "image-root";
+            paths = [self.packages.${system}.default];
+            pathsToLink = ["/bin"];
+          };
+          config.Cmd = ["/bin/meilisearch-syncer"];
+        };
         devShells.default = pkgs.devshell.mkShell {
           packages = with pkgs; [
             actionlint
             alejandra
+            dive
             go
             go-outline
             gocode-gomod
